@@ -1,0 +1,223 @@
+*************************************************
+* VARIABLES: GLOBAL                             *
+*************************************************
+var watchTime = 0;				// Current stopwatch time
+var watchIsRunning = false;		// Stopwatch app running flag
+var timerStartTime = 0;			// Timer start time
+var timerTime = 0;				// Current timer time
+var timerIsRunning = false;		// Timer app running flag
+	
+
+	
+*************************************************
+* FUNCTION: START WATCH                         *
+*************************************************
+function startWatch()
+
+	<Instructions>
+	
+		If the watch isn't running, set watch is running flag to true and start the watch
+			
+			if (!watchIsRunning) {
+				watchIsRunning = true;
+				timeIncrement();
+			}
+		
+		Else set the watch is running flag to false to stop the watch
+			
+			else {
+				watchIsRunning = false;
+			}
+
+		
+		
+*************************************************
+* FUNCTION: INCREMENT THE TIME ON THE WATCH     *
+*************************************************
+function timeIncrement()
+
+	<Instructions>
+
+		If the watch is running, Increment the timer in hundredths of seconds, display the watch time, and run recursively
+		
+			if (watchIsRunning) {
+				setTimeout(function () {
+					watchTime++;								// Increment watch time
+					timeOutput(watchTime, "stopWatchOutput");	// Display current watch time
+					timeIncrement();							// Run recursively
+				},10);											// Milliseconds / 10 is hundredths of seconds
+			}
+		
+		
+		
+*************************************************
+* FUNCTION: DISPLAY TIME OUTPUT                 *
+*************************************************
+function timeOutput(timeInput, display)
+
+	<Parameters>
+		
+		timeInput = time in milliseconds
+		display = output html element
+		
+	<Instructions>
+		
+		Set innerHTML of specified display
+			
+			document.getElementById(display).innerHTML = [
+				Math.floor(timeInput/100/60 % 60),			// Calculate the display minutes
+				Math.floor(timeInput/100 % 60),				// Calculate the display seconds
+				timeInput % 100								// Calculate the display hundredths of seconds
+			].map(formatNumber).join(':');					// Format and map the time display
+		
+		
+		
+*************************************************
+* FUNCTION: FORMAT TIME WITH LEADING ZEROS      *
+*************************************************
+function formatNumber(n)
+
+	<Parameters>
+	
+		n = time segment (m|s|h) as a number
+		
+	<Instructions>
+		
+		If the time segment is less than 10, return number with a leading zero
+			
+			return (n < 10 ? "0" : "") + n;
+		
+		
+		
+*************************************************
+* FUNCTION: WATCH RESET                         *
+*************************************************
+function watchReset()
+
+	<Variables>
+	
+		watchIsRunning = false;		// Stop the watch from running
+		watchTime = 0;				// Set the watch timer to zero
+		
+	<Instructions>
+	
+		Set the watch display to zero with a hundredth of a second delay
+			
+			setTimeout(function() {
+				document.getElementById("stopWatchOutput").innerHTML = "00:00:00";
+			}, 10);
+
+			
+			
+*************************************************
+* FUNCTION: START COUNTDOWN TIMER               *
+*************************************************
+function startTimer()
+
+	<Variables>
+	
+		var startTime = document.getElementById("timeEntered").value;  		// Input start time
+		var validStartTime = false;											// Start time validation flag
+		
+	<Instructions>
+	
+		If the user input field is not empty, set the timer start time to 0
+			
+			if (startTime != "")
+				timerStartTime = 0;
+
+			If the timer is not running...
+			
+				if (!timerIsRunning)
+				
+					If the timer start time is 0, validate the input start time
+						
+						if (timerStartTime == 0)
+							validStartTime = validateStartTime(startTime);
+						
+					Else set the start time validation flag to true
+						
+						else
+							validStartTime = true;
+						
+					If the start time is valid, set the timer running flag to true and start the time decrement function
+						
+						if (validStartTime)
+							timerIsRunning = true;
+							timeDecrement();
+						
+			Else if the timer is running, set the start time to the timer time and stop the timer
+				
+				else
+					timerStartTime = timerTime;
+					timerIsRunning = false;
+					
+					
+					
+*************************************************
+* FUNCTION: VALIDATE START TIME INPUT           *
+*************************************************
+function validateStartTime(startTime)
+
+	<Parameters>
+	
+		startTime = user input text
+		
+	<Variables>
+	
+		var regex = /^([0][0-9]:[0-5][0-9]:\d{2})|([1][0]:[0][0]:[0][0])$/;			// RegEx time validation
+		var isValid = null;															// Validation flag
+		
+	<Instructions>
+	
+		If the start time is valid...
+	
+			if (regex.test(startTime))
+		
+				Reset the time alert error
+				
+					document.getElementById("timeAlert").innerHTML = "<p>&nbsp;</p>";
+				
+				Set the timer time
+				
+					timerTime = setTimerTime(startTime);
+				
+				Clear user input field
+				
+					document.getElementById("timeEntered").value = "";
+				
+				Return true
+				
+					return true;
+					
+			// Else if the start time is invalid, display an error message and return false
+				
+				else
+					
+					document.getElementById("timeAlert").innerHTML = "<p>Invalid time entered. Please make sure it's in the format mm:ss:hh and not more than 10 minutes.</p>";
+					
+					return false;
+					
+					
+					
+*************************************************
+* FUNCTION: SET TIMER TIME (HUNDREDTHS OF SECS) *
+*************************************************
+setTimerTime(startTime)
+
+	<Parameters>
+	
+		startTime = user input text
+		
+	<Variables>
+	
+		var timeParts = startTime.split(":");				// Split time in to parts in an array
+		var minutes = parseInt(timeParts[0]) * 60 * 100;	// Minutes in hundredths of seconds
+		var seconds = parseInt(timeParts[1]) * 100;			// Seconds in hundredths of seconds
+		var hundredths = parseInt(timeParts[2]);			// Hundredths of seconds
+
+	<Instructions>
+	
+		Return time in hundredths of seconds
+		
+			return minutes + seconds + hundredths;
